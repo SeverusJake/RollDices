@@ -6,14 +6,16 @@
     <title>Neon Dice Roller</title>
     <style>
         :root {
-            --bg-color: #050505;
-            --card-bg: #111111;
+            --bg-color: #080808;
+            --card-bg: #121212;
             --text-color: #ffffff;
             --neon-blue: #00f3ff;
             --neon-pink: #bc13fe;
             --neon-green: #0aff0a;
-            --dice-bg: #000000;
-            --dice-dot: #ffffff;
+            --neon-orange: #ff9d00;
+            --neon-yellow: #ffe600;
+            --neon-dim: #333;
+            --track-bg: #222;
         }
 
         body {
@@ -28,63 +30,67 @@
             min-height: 100vh;
             touch-action: manipulation;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* --- Header --- */
+        header {
+            margin-top: 30px;
+            text-align: center;
+            width: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
 
         h1 {
-            margin-top: 30px;
             font-size: 2rem;
             text-transform: uppercase;
             letter-spacing: 4px;
-            /* Neon Text Effect */
             color: #fff;
-            text-shadow: 
-                0 0 7px #fff,
-                0 0 10px #fff,
-                0 0 21px #fff,
-                0 0 42px var(--neon-blue),
-                0 0 82px var(--neon-blue),
-                0 0 92px var(--neon-blue),
-                0 0 102px var(--neon-blue),
-                0 0 151px var(--neon-blue);
+            text-shadow: 0 0 7px #fff, 0 0 10px #fff, 0 0 21px #fff, 0 0 42px var(--neon-blue), 0 0 82px var(--neon-blue);
             animation: flicker 1.5s infinite alternate;
+            margin: 0;
         }
+
+        .config-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #555;
+            font-size: 1.6rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px;
+        }
+
+        .config-btn:hover { color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); transform: translateY(-50%) rotate(45deg); }
 
         @keyframes flicker {
-            0%, 18%, 22%, 25%, 53%, 57%, 100% {
-                text-shadow:
-                0 0 4px #fff,
-                0 0 11px #fff,
-                0 0 19px #fff,
-                0 0 40px var(--neon-blue),
-                0 0 80px var(--neon-blue),
-                0 0 90px var(--neon-blue),
-                0 0 100px var(--neon-blue),
-                0 0 150px var(--neon-blue);
-            }
-            20%, 24%, 55% {
-                text-shadow: none;
-            }
+            0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 4px #fff, 0 0 11px #fff, 0 0 40px var(--neon-blue); }
+            20%, 24%, 55% { text-shadow: none; }
         }
 
-        /* Neon Button Base Style */
+        /* --- Buttons --- */
         .neon-btn {
             background: transparent;
             border: 2px solid var(--neon-blue);
             color: var(--neon-blue);
             font-weight: bold;
-            text-transform: uppercase;
             cursor: pointer;
-            position: relative;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .neon-btn:hover, .neon-btn:active {
-            color: #000;
-            background: var(--neon-blue);
-            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 20px var(--neon-blue);
-        }
+        .neon-btn:active { transform: scale(0.95); }
+        .neon-btn:hover { color: #000; background: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
 
-        /* Selection Controls */
+        /* --- Controls --- */
         .controls {
             margin: 25px 0;
             display: flex;
@@ -94,69 +100,47 @@
         .count-btn {
             width: 60px;
             height: 60px;
-            border-radius: 50%;
+            border-radius: 15px;
             font-size: 1.5rem;
-            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
         }
 
         .count-btn.active {
             background: var(--neon-pink);
             border-color: var(--neon-pink);
             color: #fff;
-            box-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
         }
-
-        /* Shake Toggle */
-        .shake-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 28px;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
+        
+        .count-btn.active::after {
+            content: '';
             position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #222;
-            transition: .4s;
-            border-radius: 34px;
-            border: 1px solid #444;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 1.5s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
         }
 
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 20px;
-            width: 20px;
-            left: 4px;
-            bottom: 4px;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 50%;
+        /* --- Warning --- */
+        .warning-msg {
+            color: #ff3333;
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            padding: 5px 15px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 20px;
+            max-width: 90%;
+            line-height: 1.4;
         }
 
-        input:checked + .slider {
-            background-color: var(--neon-green);
-            box-shadow: 0 0 10px var(--neon-green);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
-
-        /* Dice Display Area */
+        /* --- Dice Area --- */
         .dice-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -169,30 +153,35 @@
             align-content: center;
         }
 
-        /* Visual Dice Styles */
         .dice {
             width: 90px;
             height: 90px;
-            background-color: var(--dice-bg);
+            background-color: #000;
             border-radius: 10px;
             display: grid;
             border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 5px rgba(0, 243, 255, 0.5);
+            box-shadow: 0 0 15px var(--neon-blue), inset 0 0 10px rgba(0, 243, 255, 0.3);
             visibility: hidden;
             padding: 5px;
             box-sizing: border-box;
-            transition: box-shadow 0.3s;
+            transition: border-color 0.1s, box-shadow 0.1s;
         }
 
-        .dice.visible {
-            visibility: visible;
-        }
+        .dice.visible { visibility: visible; }
 
-        /* Dice Animation - Shake + Color Change */
+        /* States */
         .dice.rolling {
-            animation: shake 0.1s infinite;
             border-color: var(--neon-pink);
-            box-shadow: 0 0 15px var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
+            animation: shake 0.1s infinite;
+        }
+        .dice.suspense {
+            border-color: var(--neon-orange);
+            box-shadow: 0 0 30px var(--neon-orange);
+            animation: pulse 0.15s infinite;
+        }
+        .dice.stopped {
+            animation: none;
         }
 
         @keyframes shake {
@@ -201,6 +190,11 @@
             50% { transform: rotate(0deg) scale(1); }
             75% { transform: rotate(-5deg) scale(0.95); }
             100% { transform: rotate(0deg) scale(1); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.05); filter: brightness(1.3); }
+            100% { transform: scale(1); filter: brightness(1); }
         }
 
         .dot {
@@ -213,10 +207,8 @@
             box-shadow: 0 0 5px #fff;
         }
 
-        /* Dice Faces Grid Definitions */
+        /* Dice Face Layouts */
         .dice { grid-template-areas: "a b" "c d" "e f"; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
-
-        /* Face layouts */
         .face-1 .dot:nth-child(1) { grid-area: 2 / 1 / 3 / 3; margin: auto; }
         .face-2 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
         .face-2 .dot:nth-child(2) { grid-area: 3 / 2; justify-self: end; align-self: end; }
@@ -239,37 +231,63 @@
         .face-6 .dot:nth-child(5) { grid-area: 3 / 1; justify-self: start; align-self: end; }
         .face-6 .dot:nth-child(6) { grid-area: 3 / 2; justify-self: end; align-self: end; }
 
-        /* Roll Button */
+        /* --- Sum Display --- */
+        .sum-container {
+            width: 90%;
+            max-width: 350px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            display: none; 
+        }
+
+        .sum-text { color: #aaa; }
+
+        .sum-value {
+            color: var(--neon-yellow);
+            font-weight: bold;
+            font-size: 1.4rem;
+            margin-left: 5px;
+            text-shadow: 0 0 8px var(--neon-yellow);
+        }
+
+        /* --- Roll Button --- */
         .roll-btn {
-            width: 220px;
+            width: 240px;
             height: 70px;
             border-radius: 35px;
             font-size: 1.8rem;
-            letter-spacing: 3px;
-            background: transparent;
             border: 2px solid var(--neon-green);
             color: var(--neon-green);
-            box-shadow: 0 0 15px var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green), inset 0 0 20px rgba(10, 255, 10, 0.1);
             margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
         }
-
-        .roll-btn:active {
-            background: var(--neon-green);
-            color: #000;
+        
+        .roll-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
         }
+        
+        .roll-btn:hover::before { left: 100%; }
 
-        /* History */
+        /* --- History --- */
         .history-container {
             width: 90%;
             max-width: 400px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #333;
-            border-radius: 10px;
+            background: rgba(20, 20, 20, 0.6);
+            border: 1px solid #222;
+            border-radius: 15px;
             padding: 15px;
             margin-bottom: 20px;
             max-height: 250px;
             overflow-y: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
 
         .history-header {
@@ -281,28 +299,20 @@
             padding-bottom: 5px;
         }
 
-        .history-title {
-            font-size: 1rem;
-            color: var(--neon-blue);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 0 0 5px var(--neon-blue);
-        }
-
+        .history-title { font-size: 0.9rem; color: var(--neon-blue); text-transform: uppercase; letter-spacing: 2px; }
+        
         .clear-btn {
             font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 20px;
             border: 1px solid #ff0055;
             color: #ff0055;
             background: transparent;
             cursor: pointer;
+            transition: 0.2s;
         }
         
-        .clear-btn:hover {
-            background: #ff0055;
-            color: #fff;
-        }
+        .clear-btn:hover { background: #ff0055; color: #fff; box-shadow: 0 0 10px #ff0055; }
 
         .history-item {
             margin: 8px 0;
@@ -311,55 +321,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-right: 5px;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        
+        .history-item:last-child { border-bottom: none; }
 
-        .history-text {
-            display: flex;
-            gap: 10px;
-        }
-
-        .history-sum {
-            color: var(--neon-green);
-            font-weight: bold;
-            text-shadow: 0 0 3px var(--neon-green);
+        .history-text { display: flex; gap: 15px; }
+        
+        /* History Sum Colors */
+        .history-sum-label { color: #aaa; }
+        .history-sum-value { 
+            color: var(--neon-yellow); 
+            font-weight: bold; 
+            text-shadow: 0 0 5px rgba(255, 230, 0, 0.5); 
+            margin-left: 4px;
         }
 
         .delete-line-btn {
             background: transparent;
             border: none;
-            color: #555;
+            color: #444;
             cursor: pointer;
             font-size: 1rem;
             padding: 0 5px;
-            transition: color 0.2s;
+            transition: 0.2s;
         }
+        .delete-line-btn:hover { color: #ff3333; transform: scale(1.2); }
 
-        .delete-line-btn:hover {
-            color: #ff3333;
-        }
-
-        /* iOS Permission Button */
-        #ios-permission-btn {
-            display: none;
-            margin-bottom: 10px;
-            background: transparent;
-            border: 1px solid var(--neon-pink);
-            color: var(--neon-pink);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-        }
-
-        /* Custom Modal */
+        /* --- Modals --- */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -367,55 +362,158 @@
         }
 
         .modal-box {
-            background: #111;
-            border: 2px solid var(--neon-pink);
-            box-shadow: 0 0 20px var(--neon-pink);
-            padding: 30px;
-            border-radius: 10px;
+            background: #0a0a0a;
+            border: 1px solid var(--neon-pink);
+            box-shadow: 0 0 30px var(--neon-pink);
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
-            width: 80%;
-            max-width: 300px;
-            color: #fff;
+            width: 85%;
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .config-modal {
+            text-align: left;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 30px rgba(0, 195, 255, 0.3);
         }
 
         .modal-title {
-            margin: 0 0 15px 0;
+            margin: 0 0 25px 0;
             font-size: 1.2rem;
-            color: var(--neon-pink);
-            text-shadow: 0 0 5px var(--neon-pink);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
         }
 
-        .modal-text {
-            margin-bottom: 25px;
-            color: #ccc;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-        }
-
+        .modal-text { color: #ccc; margin-bottom: 20px; }
+        
+        .modal-actions { display: flex; justify-content: center; gap: 10px; }
+        
         .modal-btn {
             padding: 10px 25px;
-            border-radius: 5px;
+            border-radius: 25px;
             font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
-            font-size: 0.9rem;
-        }
-
-        .modal-cancel {
-            background: transparent;
-            border: 1px solid #555;
-            color: #aaa;
-        }
-
-        .modal-confirm {
-            background: var(--neon-pink);
             border: none;
-            color: #fff;
-            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .modal-cancel { background: #222; color: #aaa; border: 1px solid #444; }
+        .modal-confirm { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
+
+        /* --- Custom Inputs (Colorful Settings) --- */
+        .config-item {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .config-item:last-of-type { border-bottom: none; }
+
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .config-label { font-size: 0.95rem; color: #ddd; font-weight: 500; }
+        
+        /* Switch Base */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #222;
+            transition: .3s;
+            border-radius: 28px;
+            border: 1px solid #444;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #fff;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Switch Colors */
+        .switch.pink input:checked + .slider { background-color: var(--neon-pink); border-color: var(--neon-pink); box-shadow: 0 0 15px var(--neon-pink); }
+        .switch.green input:checked + .slider { background-color: var(--neon-green); border-color: var(--neon-green); box-shadow: 0 0 15px var(--neon-green); }
+        .switch.orange input:checked + .slider { background-color: var(--neon-orange); border-color: var(--neon-orange); box-shadow: 0 0 15px var(--neon-orange); }
+
+        /* Range Sliders (Dynamic Fill) */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            outline: none;
+            margin-top: 5px;
+            background: var(--track-bg); /* Fallback */
+        }
+
+        /* Thumb */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+        }
+
+        .value-display {
+            color: var(--neon-blue);
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 2px;
+            font-family: monospace;
+        }
+
+        .close-config-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .close-config-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
         }
 
     </style>
@@ -424,6 +522,7 @@
 
     <header>
         <h1>Dice Roller</h1>
+        <button class="config-btn" id="configOpenBtn">⚙️</button>
     </header>
 
     <div class="controls">
@@ -433,17 +532,14 @@
         <button class="count-btn neon-btn" data-count="4">4</button>
     </div>
 
-    <div class="shake-toggle">
-        <span>Shake to Roll</span>
-        <label class="switch">
-            <input type="checkbox" id="shakeSwitch">
-            <span class="slider"></span>
-        </label>
-    </div>
-    <button id="ios-permission-btn" onclick="requestMotionPermission()">Enable Motion</button>
+    <div class="warning-msg" id="warningMsg">⚠️ Motion sensors are blocked. Enable motion sensors in your browser to use the shake feature.</div>
 
-    <div class="dice-container" id="diceContainer">
-        <!-- Dice generated here -->
+    <div class="dice-container" id="diceContainer"></div>
+
+    <!-- Sum Display Area -->
+    <div class="sum-container" id="sumContainer">
+        <span class="sum-text">Total:</span>
+        <span class="sum-value" id="sumValue">0</span>
     </div>
 
     <button class="roll-btn neon-btn" id="rollBtn">ROLL</button>
@@ -453,15 +549,72 @@
             <div class="history-title">History</div>
             <button class="clear-btn" id="clearHistoryBtn">Reset</button>
         </div>
-        <div id="historyLog">
-            <!-- History logs here -->
+        <div id="historyLog"></div>
+    </div>
+
+    <!-- Config Modal -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal-box config-modal">
+            <h3 class="modal-title" style="color: #fff;">Settings</h3>
+            
+            <!-- Shake (Pink) -->
+            <div class="config-item">
+                <div class="config-row">
+                    <span class="config-label" style="color: var(--neon-pink);">Shake to Roll</span>
+                    <label class="switch pink">
+                        <input type="checkbox" id="shakeSwitch" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Sum (Green) -->
+            <div class="config-item">
+                <div class="config-row">
+                    <span class="config-label" style="color: var(--neon-green);">Show Sum Total</span>
+                    <label class="switch green">
+                        <input type="checkbox" id="showSumSwitch" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Reveal (Orange) -->
+            <div class="config-item">
+                <div class="config-row">
+                    <span class="config-label" style="color: var(--neon-orange);">Reveal One by One</span>
+                    <label class="switch orange">
+                        <input type="checkbox" id="revealModeSwitch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Timers (Blue Theme) -->
+            <div class="config-item">
+                <div class="config-row">
+                    <span class="config-label" style="color: var(--neon-blue);">Roll Duration</span>
+                </div>
+                <input type="range" id="revealTimeInput" min="100" max="1000" value="600" step="50">
+                <div class="value-display" id="revealTimeValue">600ms</div>
+            </div>
+
+            <div class="config-item">
+                <div class="config-row">
+                    <span class="config-label" style="color: var(--neon-blue);">Gap Between Dice</span>
+                </div>
+                <input type="range" id="gapTimeInput" min="50" max="500" value="250" step="50">
+                <div class="value-display" id="gapTimeValue">250ms</div>
+            </div>
+
+            <button class="close-config-btn" id="closeConfigBtn">Done</button>
         </div>
     </div>
 
-    <!-- Custom Modal -->
+    <!-- Reset Confirm Modal -->
     <div class="modal-overlay" id="confirmModal">
         <div class="modal-box">
-            <h3 class="modal-title">Reset History?</h3>
+            <h3 class="modal-title" style="color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink);">Reset History?</h3>
             <p class="modal-text">Are you sure you want to clear all history?</p>
             <div class="modal-actions">
                 <button class="modal-btn modal-cancel" id="modalCancelBtn">Cancel</button>
@@ -471,53 +624,117 @@
     </div>
 
     <script>
-        // --- Configuration ---
+        // --- State ---
         let diceCount = 1;
-        let isShakingEnabled = false;
+        let isShakingEnabled = true; 
         let isRolling = false;
+        let revealOneByOne = false;
+        let showSumEnabled = true;   
+        let revealDuration = 600; // This now controls the initial spin time
+        let gapDuration = 250;
+
+        // --- Elements ---
         const historyLog = document.getElementById('historyLog');
         const diceContainer = document.getElementById('diceContainer');
         const rollBtn = document.getElementById('rollBtn');
-        const shakeSwitch = document.getElementById('shakeSwitch');
         const countBtns = document.querySelectorAll('.count-btn');
-        const iosBtn = document.getElementById('ios-permission-btn');
+        const warningMsg = document.getElementById('warningMsg');
+        const sumContainer = document.getElementById('sumContainer');
+        const sumValue = document.getElementById('sumValue');
         
-        // Modal Elements
-        const modal = document.getElementById('confirmModal');
+        // Modals
+        const resetModal = document.getElementById('confirmModal');
+        const configModal = document.getElementById('configModal');
         const clearBtn = document.getElementById('clearHistoryBtn');
-        const cancelBtn = document.getElementById('modalCancelBtn');
-        const confirmBtn = document.getElementById('modalConfirmBtn');
+        const configBtn = document.getElementById('configOpenBtn');
+        const closeConfigBtn = document.getElementById('closeConfigBtn');
+        
+        // Inputs
+        const shakeSwitch = document.getElementById('shakeSwitch');
+        const showSumSwitch = document.getElementById('showSumSwitch');
+        const revealModeSwitch = document.getElementById('revealModeSwitch');
+        const revealTimeInput = document.getElementById('revealTimeInput');
+        const gapTimeInput = document.getElementById('gapTimeInput');
+        const revealTimeValue = document.getElementById('revealTimeValue');
+        const gapTimeValue = document.getElementById('gapTimeValue');
 
-        // --- Dice Selection ---
+        // --- Helper: Slider Background Fill ---
+        function setSliderBackground(slider) {
+            const min = slider.min || 0;
+            const max = slider.max || 100;
+            const value = slider.value;
+            const percentage = (value - min) / (max - min) * 100;
+            slider.style.background = `linear-gradient(to right, var(--neon-blue) 0%, var(--neon-blue) ${percentage}%, #222 ${percentage}%, #222 100%)`;
+        }
+
+        // --- Listeners ---
         countBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 countBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 diceCount = parseInt(btn.dataset.count);
-                resetDiceDisplay();
+                resetDiceDisplay(true);
+                sumValue.innerText = '0'; 
             });
         });
 
-        // --- Dice Rendering Logic ---
-        function resetDiceDisplay() {
+        // Settings Listeners
+        showSumSwitch.addEventListener('change', (e) => {
+            showSumEnabled = e.target.checked;
+            sumContainer.style.display = showSumEnabled ? 'block' : 'none';
+        });
+        
+        revealModeSwitch.addEventListener('change', (e) => revealOneByOne = e.target.checked);
+        
+        revealTimeInput.addEventListener('input', (e) => {
+            revealDuration = parseInt(e.target.value);
+            revealTimeValue.innerText = revealDuration + 'ms';
+            setSliderBackground(e.target);
+        });
+
+        gapTimeInput.addEventListener('input', (e) => {
+            gapDuration = parseInt(e.target.value);
+            gapTimeValue.innerText = gapDuration + 'ms';
+            setSliderBackground(e.target);
+        });
+
+        configBtn.addEventListener('click', () => configModal.style.display = 'flex');
+        closeConfigBtn.addEventListener('click', () => configModal.style.display = 'none');
+        configModal.addEventListener('click', (e) => { if (e.target === configModal) configModal.style.display = 'none'; });
+
+        // Reset Modal
+        clearBtn.addEventListener('click', () => resetModal.style.display = 'flex');
+        document.getElementById('modalCancelBtn').addEventListener('click', () => resetModal.style.display = 'none');
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            historyLog.innerHTML = '';
+            resetModal.style.display = 'none';
+        });
+
+        // --- Dice Logic ---
+        function resetDiceDisplay(randomize = false) {
             diceContainer.innerHTML = '';
             for (let i = 0; i < diceCount; i++) {
                 const dice = document.createElement('div');
-                dice.className = 'dice visible';
+                dice.className = 'dice visible stopped';
+                if(randomize) updateDiceVisual(dice, Math.floor(Math.random() * 6) + 1);
                 diceContainer.appendChild(dice);
             }
         }
 
-        function createDiceFace(value) {
-            const dice = document.createElement('div');
-            dice.className = 'dice visible';
-            dice.classList.add(`face-${value}`);
-            for (let i = 0; i < value; i++) {
+        function updateDiceVisual(diceEl, value) {
+            diceEl.className = diceEl.className.replace(/face-\d/g, '').trim();
+            diceEl.classList.add(`face-${value}`);
+            diceEl.innerHTML = '';
+            for(let d=0; d<value; d++) {
                 const dot = document.createElement('div');
                 dot.className = 'dot';
-                dice.appendChild(dot);
+                diceEl.appendChild(dot);
             }
-            return dice;
+        }
+
+        function setDiceState(diceEl, state) {
+            diceEl.classList.remove('rolling', 'suspense', 'stopped');
+            diceEl.classList.add(state);
         }
 
         // --- Rolling Logic ---
@@ -525,52 +742,98 @@
             if (isRolling) return;
             isRolling = true;
 
-            // Init container
-            diceContainer.innerHTML = '';
             const results = [];
-            const diceElements = [];
-            const intervals = [];
+            for (let i = 0; i < diceCount; i++) results.push(Math.floor(Math.random() * 6) + 1);
 
-            // Create dice and start animation
+            diceContainer.innerHTML = '';
+            const diceElements = [];
+            const intervals = []; 
+
+            // 1. Create & Start Rolling (Pink)
             for (let i = 0; i < diceCount; i++) {
                 const dice = document.createElement('div');
                 dice.className = 'dice visible rolling';
                 diceContainer.appendChild(dice);
                 diceElements.push(dice);
 
-                // Rapid visual update loop for random dots
                 const interval = setInterval(() => {
-                    const randVal = Math.floor(Math.random() * 6) + 1;
-                    dice.className = `dice visible rolling face-${randVal}`;
-                    dice.innerHTML = ''; // Clear dots
-                    for(let d=0; d<randVal; d++) {
-                        const dot = document.createElement('div');
-                        dot.className = 'dot';
-                        dice.appendChild(dot);
-                    }
-                }, 80); // Speed of dot change
-                
+                    updateDiceVisual(dice, Math.floor(Math.random() * 6) + 1);
+                }, 80);
                 intervals.push(interval);
             }
-            
-            if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
 
-            // Settle phase
+            if (navigator.vibrate) navigator.vibrate(30);
+
+            // 2. Logic - Use revealDuration for the initial spin
             setTimeout(() => {
-                // Stop all animations
-                intervals.forEach(clearInterval);
-                
-                diceContainer.innerHTML = '';
-                for (let i = 0; i < diceCount; i++) {
-                    const val = Math.floor(Math.random() * 6) + 1;
-                    results.push(val);
-                    const finalDice = createDiceFace(val);
-                    diceContainer.appendChild(finalDice);
+                if (revealOneByOne && diceCount > 1) {
+                    
+                    // --- PARALLEL SUSPENSE, SEQUENTIAL REVEAL ---
+                    
+                    // Switch ALL to Suspense (Orange)
+                    intervals.forEach(clearInterval);
+                    
+                    const suspenseIntervals = [];
+                    diceElements.forEach(dice => {
+                        setDiceState(dice, 'suspense');
+                        const sInterval = setInterval(() => {
+                            updateDiceVisual(dice, Math.floor(Math.random() * 6) + 1);
+                        }, 40);
+                        suspenseIntervals.push(sInterval);
+                    });
+
+                    // Random Order
+                    const indices = Array.from({length: diceCount}, (_, i) => i);
+                    for (let i = indices.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [indices[i], indices[j]] = [indices[j], indices[i]];
+                    }
+
+                    // Add a small fixed suspense buffer so the yellow state is visible
+                    // before the sequential reveal starts
+                    const SUSPENSE_BUFFER = 300; 
+                    let delay = 0;
+
+                    indices.forEach((diceIndex, iteration) => {
+                        
+                        setTimeout(() => {
+                            clearInterval(suspenseIntervals[diceIndex]);
+                            const dice = diceElements[diceIndex];
+                            
+                            updateDiceVisual(dice, results[diceIndex]);
+                            setDiceState(dice, 'stopped');
+                            
+                            if (navigator.vibrate) navigator.vibrate(20);
+
+                            if (iteration === indices.length - 1) {
+                                finishRoll(results);
+                            }
+                        }, SUSPENSE_BUFFER + delay); 
+
+                        delay += gapDuration;
+                    });
+
+                } else {
+                    // --- NORMAL REVEAL ---
+                    intervals.forEach(clearInterval);
+                    diceElements.forEach((dice, i) => {
+                        updateDiceVisual(dice, results[i]);
+                        setDiceState(dice, 'stopped');
+                    });
+                    finishRoll(results);
                 }
-                
-                updateHistory(results);
-                isRolling = false;
-            }, 700); // Animation duration
+            }, revealDuration); // FIX: Use the variable here
+        }
+
+        function finishRoll(results) {
+            updateHistory(results);
+            isRolling = false;
+            
+            // Update Sum
+            if(showSumEnabled) {
+                const total = results.reduce((a, b) => a + b, 0);
+                sumValue.innerText = total;
+            }
         }
 
         // --- History ---
@@ -582,45 +845,22 @@
             entry.innerHTML = `
                 <div class="history-text">
                     <span>[${results.join(', ')}]</span>
-                    <span class="history-sum">Sum: ${total}</span>
+                    <span>
+                        <span class="history-sum-label">Sum:</span>
+                        <span class="history-sum-value">${total}</span>
+                    </span>
                 </div>
                 <button class="delete-line-btn">&times;</button>
             `;
 
-            // Add delete functionality to the new line
-            entry.querySelector('.delete-line-btn').addEventListener('click', () => {
-                entry.remove();
-            });
-            
+            entry.querySelector('.delete-line-btn').addEventListener('click', () => entry.remove());
             historyLog.insertBefore(entry, historyLog.firstChild);
         }
 
-        // --- Modal Logic ---
-        clearBtn.addEventListener('click', () => {
-            modal.style.display = 'flex';
-        });
-
-        cancelBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            historyLog.innerHTML = '';
-            modal.style.display = 'none';
-        });
-
-        // Close modal if clicking outside
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) modal.style.display = 'none';
-        });
-
-
-        // --- Interaction Events ---
-
-        // Button Click
+        // --- Interaction ---
         rollBtn.addEventListener('click', rollDice);
 
-        // Shake Logic
+        // --- Shake Logic & Auto-Detect ---
         let lastShakeTime = 0;
         const shakeThreshold = 15;
 
@@ -637,39 +877,75 @@
             }
         }
 
-        function requestMotionPermission() {
-            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                DeviceMotionEvent.requestPermission()
-                    .then(permissionState => {
-                        if (permissionState === 'granted') {
-                            window.addEventListener('devicemotion', handleMotion);
-                            iosBtn.style.display = 'none';
-                            alert("Shake enabled!");
-                        }
-                    });
-            } else {
-                window.addEventListener('devicemotion', handleMotion);
-            }
+        function checkSensors(isManual) {
+            let hasData = false;
+            
+            const testHandler = (e) => {
+                if (e.accelerationIncludingGravity && e.accelerationIncludingGravity.x !== null) {
+                    hasData = true;
+                }
+            };
+
+            window.addEventListener('devicemotion', testHandler);
+
+            setTimeout(() => {
+                window.removeEventListener('devicemotion', testHandler);
+                
+                if (!hasData) {
+                    // BLOCKED
+                    if (isManual) {
+                        warningMsg.style.display = 'block';
+                        isShakingEnabled = false;
+                    } else {
+                        shakeSwitch.checked = false;
+                        isShakingEnabled = false;
+                        warningMsg.style.display = 'none';
+                    }
+                } else {
+                    // WORKING
+                    warningMsg.style.display = 'none';
+                    isShakingEnabled = true;
+                    window.addEventListener('devicemotion', handleMotion);
+                }
+            }, 1000);
         }
 
         shakeSwitch.addEventListener('change', (e) => {
-            isShakingEnabled = e.target.checked;
-            if (isShakingEnabled) {
+            const turnedOn = e.target.checked;
+            
+            if (turnedOn) {
                 if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                    iosBtn.style.display = 'block';
-                    e.target.checked = false; 
-                    isShakingEnabled = false;
+                    DeviceMotionEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                checkSensors(true); 
+                            } else {
+                                alert("Permission denied.");
+                                shakeSwitch.checked = false;
+                                isShakingEnabled = false;
+                                warningMsg.style.display = 'none';
+                            }
+                        }).catch(console.error);
                 } else {
-                    window.addEventListener('devicemotion', handleMotion);
+                    checkSensors(true); 
                 }
             } else {
-                window.removeEventListener('devicemotion', handleMotion);
-                iosBtn.style.display = 'none';
+                isShakingEnabled = false;
+                warningMsg.style.display = 'none';
             }
         });
 
-        // Initialize
-        resetDiceDisplay();
+        // --- Initialize ---
+        resetDiceDisplay(true);
+        
+        if(showSumEnabled) sumContainer.style.display = 'block';
+        
+        // Init Slider Backgrounds
+        setSliderBackground(revealTimeInput);
+        setSliderBackground(gapTimeInput);
+        
+        // Initial check on load
+        checkSensors(false); 
 
     </script>
 </body>
