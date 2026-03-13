@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Dice Roller</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --card-bg: #111111;
+            --text-color: #ffffff;
+            --neon-blue: #00f3ff;
+            --neon-pink: #bc13fe;
+            --neon-green: #0aff0a;
+            --dice-bg: #000000;
+            --dice-dot: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            margin-top: 30px;
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            /* Neon Text Effect */
+            color: #fff;
+            text-shadow: 
+                0 0 7px #fff,
+                0 0 10px #fff,
+                0 0 21px #fff,
+                0 0 42px var(--neon-blue),
+                0 0 82px var(--neon-blue),
+                0 0 92px var(--neon-blue),
+                0 0 102px var(--neon-blue),
+                0 0 151px var(--neon-blue);
+            animation: flicker 1.5s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                text-shadow:
+                0 0 4px #fff,
+                0 0 11px #fff,
+                0 0 19px #fff,
+                0 0 40px var(--neon-blue),
+                0 0 80px var(--neon-blue),
+                0 0 90px var(--neon-blue),
+                0 0 100px var(--neon-blue),
+                0 0 150px var(--neon-blue);
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+            }
+        }
+
+        /* Neon Button Base Style */
+        .neon-btn {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .neon-btn:hover, .neon-btn:active {
+            color: #000;
+            background: var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue), inset 0 0 20px var(--neon-blue);
+        }
+
+        /* Selection Controls */
+        .controls {
+            margin: 25px 0;
+            display: flex;
+            gap: 15px;
+        }
+
+        .count-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+        }
+
+        .count-btn.active {
+            background: var(--neon-pink);
+            border-color: var(--neon-pink);
+            color: #fff;
+            box-shadow: 0 0 15px var(--neon-pink), 0 0 30px var(--neon-pink);
+        }
+
+        /* Shake Toggle */
+        .shake-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 28px;
+        }
+
+        .switch input { opacity: 0; width: 0; height: 0; }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #222;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid #444;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        /* Dice Display Area */
+        .dice-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin: 20px 0;
+            min-height: 240px;
+            width: 100%;
+            max-width: 350px;
+            justify-items: center;
+            align-content: center;
+        }
+
+        /* Visual Dice Styles */
+        .dice {
+            width: 90px;
+            height: 90px;
+            background-color: var(--dice-bg);
+            border-radius: 10px;
+            display: grid;
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue), inset 0 0 5px rgba(0, 243, 255, 0.5);
+            visibility: hidden;
+            padding: 5px;
+            box-sizing: border-box;
+            transition: box-shadow 0.3s;
+        }
+
+        .dice.visible {
+            visibility: visible;
+        }
+
+        /* Dice Animation - Shake + Color Change */
+        .dice.rolling {
+            animation: shake 0.1s infinite;
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(5deg) scale(0.95); }
+            50% { transform: rotate(0deg) scale(1); }
+            75% { transform: rotate(-5deg) scale(0.95); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        .dot {
+            width: 16px;
+            height: 16px;
+            background-color: #fff;
+            border-radius: 50%;
+            justify-self: center;
+            align-self: center;
+            box-shadow: 0 0 5px #fff;
+        }
+
+        /* Dice Faces Grid Definitions */
+        .dice { grid-template-areas: "a b" "c d" "e f"; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; }
+
+        /* Face layouts */
+        .face-1 .dot:nth-child(1) { grid-area: 2 / 1 / 3 / 3; margin: auto; }
+        .face-2 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
+        .face-2 .dot:nth-child(2) { grid-area: 3 / 2; justify-self: end; align-self: end; }
+        .face-3 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
+        .face-3 .dot:nth-child(2) { grid-area: 2 / 1 / 3 / 3; margin: auto; }
+        .face-3 .dot:nth-child(3) { grid-area: 3 / 2; justify-self: end; align-self: end; }
+        .face-4 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
+        .face-4 .dot:nth-child(2) { grid-area: 1 / 2; justify-self: end; align-self: start; }
+        .face-4 .dot:nth-child(3) { grid-area: 3 / 1; justify-self: start; align-self: end; }
+        .face-4 .dot:nth-child(4) { grid-area: 3 / 2; justify-self: end; align-self: end; }
+        .face-5 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
+        .face-5 .dot:nth-child(2) { grid-area: 1 / 2; justify-self: end; align-self: start; }
+        .face-5 .dot:nth-child(3) { grid-area: 2 / 1 / 3 / 3; margin: auto; }
+        .face-5 .dot:nth-child(4) { grid-area: 3 / 1; justify-self: start; align-self: end; }
+        .face-5 .dot:nth-child(5) { grid-area: 3 / 2; justify-self: end; align-self: end; }
+        .face-6 .dot:nth-child(1) { grid-area: 1 / 1; justify-self: start; align-self: start; }
+        .face-6 .dot:nth-child(2) { grid-area: 1 / 2; justify-self: end; align-self: start; }
+        .face-6 .dot:nth-child(3) { grid-area: 2 / 1; justify-self: start; align-self: center; }
+        .face-6 .dot:nth-child(4) { grid-area: 2 / 2; justify-self: end; align-self: center; }
+        .face-6 .dot:nth-child(5) { grid-area: 3 / 1; justify-self: start; align-self: end; }
+        .face-6 .dot:nth-child(6) { grid-area: 3 / 2; justify-self: end; align-self: end; }
+
+        /* Roll Button */
+        .roll-btn {
+            width: 220px;
+            height: 70px;
+            border-radius: 35px;
+            font-size: 1.8rem;
+            letter-spacing: 3px;
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 15px var(--neon-green);
+            margin-bottom: 30px;
+        }
+
+        .roll-btn:active {
+            background: var(--neon-green);
+            color: #000;
+        }
+
+        /* History */
+        .history-container {
+            width: 90%;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+
+        .history-title {
+            font-size: 1rem;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        .clear-btn {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #ff0055;
+            color: #ff0055;
+            background: transparent;
+            cursor: pointer;
+        }
+        
+        .clear-btn:hover {
+            background: #ff0055;
+            color: #fff;
+        }
+
+        .history-item {
+            margin: 8px 0;
+            font-size: 0.95rem;
+            color: #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 5px;
+        }
+
+        .history-text {
+            display: flex;
+            gap: 10px;
+        }
+
+        .history-sum {
+            color: var(--neon-green);
+            font-weight: bold;
+            text-shadow: 0 0 3px var(--neon-green);
+        }
+
+        .delete-line-btn {
+            background: transparent;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+
+        .delete-line-btn:hover {
+            color: #ff3333;
+        }
+
+        /* iOS Permission Button */
+        #ios-permission-btn {
+            display: none;
+            margin-bottom: 10px;
+            background: transparent;
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+
+        /* Custom Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-box {
+            background: #111;
+            border: 2px solid var(--neon-pink);
+            box-shadow: 0 0 20px var(--neon-pink);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            color: #fff;
+        }
+
+        .modal-title {
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            color: var(--neon-pink);
+            text-shadow: 0 0 5px var(--neon-pink);
+        }
+
+        .modal-text {
+            margin-bottom: 25px;
+            color: #ccc;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .modal-cancel {
+            background: transparent;
+            border: 1px solid #555;
+            color: #aaa;
+        }
+
+        .modal-confirm {
+            background: var(--neon-pink);
+            border: none;
+            color: #fff;
+            box-shadow: 0 0 10px var(--neon-pink);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Dice Roller</h1>
+    </header>
+
+    <div class="controls">
+        <button class="count-btn neon-btn active" data-count="1">1</button>
+        <button class="count-btn neon-btn" data-count="2">2</button>
+        <button class="count-btn neon-btn" data-count="3">3</button>
+        <button class="count-btn neon-btn" data-count="4">4</button>
+    </div>
+
+    <div class="shake-toggle">
+        <span>Shake to Roll</span>
+        <label class="switch">
+            <input type="checkbox" id="shakeSwitch">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <button id="ios-permission-btn" onclick="requestMotionPermission()">Enable Motion</button>
+
+    <div class="dice-container" id="diceContainer">
+        <!-- Dice generated here -->
+    </div>
+
+    <button class="roll-btn neon-btn" id="rollBtn">ROLL</button>
+
+    <div class="history-container">
+        <div class="history-header">
+            <div class="history-title">History</div>
+            <button class="clear-btn" id="clearHistoryBtn">Reset</button>
+        </div>
+        <div id="historyLog">
+            <!-- History logs here -->
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-box">
+            <h3 class="modal-title">Reset History?</h3>
+            <p class="modal-text">Are you sure you want to clear all history?</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-cancel" id="modalCancelBtn">Cancel</button>
+                <button class="modal-btn modal-confirm" id="modalConfirmBtn">Yes, Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        let diceCount = 1;
+        let isShakingEnabled = false;
+        let isRolling = false;
+        const historyLog = document.getElementById('historyLog');
+        const diceContainer = document.getElementById('diceContainer');
+        const rollBtn = document.getElementById('rollBtn');
+        const shakeSwitch = document.getElementById('shakeSwitch');
+        const countBtns = document.querySelectorAll('.count-btn');
+        const iosBtn = document.getElementById('ios-permission-btn');
+        
+        // Modal Elements
+        const modal = document.getElementById('confirmModal');
+        const clearBtn = document.getElementById('clearHistoryBtn');
+        const cancelBtn = document.getElementById('modalCancelBtn');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+
+        // --- Dice Selection ---
+        countBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                countBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                diceCount = parseInt(btn.dataset.count);
+                resetDiceDisplay();
+            });
+        });
+
+        // --- Dice Rendering Logic ---
+        function resetDiceDisplay() {
+            diceContainer.innerHTML = '';
+            for (let i = 0; i < diceCount; i++) {
+                const dice = document.createElement('div');
+                dice.className = 'dice visible';
+                diceContainer.appendChild(dice);
+            }
+        }
+
+        function createDiceFace(value) {
+            const dice = document.createElement('div');
+            dice.className = 'dice visible';
+            dice.classList.add(`face-${value}`);
+            for (let i = 0; i < value; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dice.appendChild(dot);
+            }
+            return dice;
+        }
+
+        // --- Rolling Logic ---
+        function rollDice() {
+            if (isRolling) return;
+            isRolling = true;
+
+            // Init container
+            diceContainer.innerHTML = '';
+            const results = [];
+            const diceElements = [];
+            const intervals = [];
+
+            // Create dice and start animation
+            for (let i = 0; i < diceCount; i++) {
+                const dice = document.createElement('div');
+                dice.className = 'dice visible rolling';
+                diceContainer.appendChild(dice);
+                diceElements.push(dice);
+
+                // Rapid visual update loop for random dots
+                const interval = setInterval(() => {
+                    const randVal = Math.floor(Math.random() * 6) + 1;
+                    dice.className = `dice visible rolling face-${randVal}`;
+                    dice.innerHTML = ''; // Clear dots
+                    for(let d=0; d<randVal; d++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'dot';
+                        dice.appendChild(dot);
+                    }
+                }, 80); // Speed of dot change
+                
+                intervals.push(interval);
+            }
+            
+            if (navigator.vibrate) navigator.vibrate([30, 20, 30]);
+
+            // Settle phase
+            setTimeout(() => {
+                // Stop all animations
+                intervals.forEach(clearInterval);
+                
+                diceContainer.innerHTML = '';
+                for (let i = 0; i < diceCount; i++) {
+                    const val = Math.floor(Math.random() * 6) + 1;
+                    results.push(val);
+                    const finalDice = createDiceFace(val);
+                    diceContainer.appendChild(finalDice);
+                }
+                
+                updateHistory(results);
+                isRolling = false;
+            }, 700); // Animation duration
+        }
+
+        // --- History ---
+        function updateHistory(results) {
+            const total = results.reduce((a, b) => a + b, 0);
+            const entry = document.createElement('div');
+            entry.className = 'history-item';
+            
+            entry.innerHTML = `
+                <div class="history-text">
+                    <span>[${results.join(', ')}]</span>
+                    <span class="history-sum">Sum: ${total}</span>
+                </div>
+                <button class="delete-line-btn">&times;</button>
+            `;
+
+            // Add delete functionality to the new line
+            entry.querySelector('.delete-line-btn').addEventListener('click', () => {
+                entry.remove();
+            });
+            
+            historyLog.insertBefore(entry, historyLog.firstChild);
+        }
+
+        // --- Modal Logic ---
+        clearBtn.addEventListener('click', () => {
+            modal.style.display = 'flex';
+        });
+
+        cancelBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            historyLog.innerHTML = '';
+            modal.style.display = 'none';
+        });
+
+        // Close modal if clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        });
+
+
+        // --- Interaction Events ---
+
+        // Button Click
+        rollBtn.addEventListener('click', rollDice);
+
+        // Shake Logic
+        let lastShakeTime = 0;
+        const shakeThreshold = 15;
+
+        function handleMotion(event) {
+            if (!isShakingEnabled || isRolling) return;
+            const acc = event.accelerationIncludingGravity;
+            if (!acc) return;
+            const totalAcceleration = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+            const now = Date.now();
+            
+            if (totalAcceleration > shakeThreshold && (now - lastShakeTime > 1000)) {
+                lastShakeTime = now;
+                rollDice();
+            }
+        }
+
+        function requestMotionPermission() {
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('devicemotion', handleMotion);
+                            iosBtn.style.display = 'none';
+                            alert("Shake enabled!");
+                        }
+                    });
+            } else {
+                window.addEventListener('devicemotion', handleMotion);
+            }
+        }
+
+        shakeSwitch.addEventListener('change', (e) => {
+            isShakingEnabled = e.target.checked;
+            if (isShakingEnabled) {
+                if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                    iosBtn.style.display = 'block';
+                    e.target.checked = false; 
+                    isShakingEnabled = false;
+                } else {
+                    window.addEventListener('devicemotion', handleMotion);
+                }
+            } else {
+                window.removeEventListener('devicemotion', handleMotion);
+                iosBtn.style.display = 'none';
+            }
+        });
+
+        // Initialize
+        resetDiceDisplay();
+
+    </script>
+</body>
+</html>
